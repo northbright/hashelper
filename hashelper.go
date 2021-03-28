@@ -6,7 +6,9 @@ import (
 	"io"
 )
 
-func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash) ([]byte, int64, error) {
+type CallBack func(ctx context.Context, summed int64)
+
+func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash, f CallBack) ([]byte, int64, error) {
 	var summed int64
 	buf := make([]byte, bufferSize)
 
@@ -25,6 +27,20 @@ func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash) ([]byt
 			}
 
 			summed += n
+
+			if f != nil {
+				f(ctx, summed)
+			}
 		}
 	}
+}
+
+func SumString(s string, h hash.Hash) ([]byte, int, error) {
+	n, err := io.WriteString(h, s)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	checksum := h.Sum(nil)
+	return checksum, n, nil
 }
