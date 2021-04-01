@@ -6,9 +6,7 @@ import (
 	"io"
 )
 
-type CallBack func(ctx context.Context, summed int64)
-
-func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash, f CallBack) ([]byte, int64, error) {
+func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash) ([]byte, int64, error) {
 	var summed int64
 	buf := make([]byte, bufferSize)
 
@@ -27,10 +25,6 @@ func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash, f Call
 			}
 
 			summed += n
-
-			if f != nil {
-				f(ctx, summed)
-			}
 		}
 	}
 }

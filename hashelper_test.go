@@ -26,7 +26,7 @@ func ExampleSum() {
 
 		r := strings.NewReader(str)
 		h := md5.New()
-		checksum, summed, err := hashelper.Sum(ctx, r, bufferSize, h, nil)
+		checksum, summed, err := hashelper.Sum(ctx, r, bufferSize, h)
 		if err != nil {
 			log.Printf("Sum() error: %v", err)
 			return
