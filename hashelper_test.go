@@ -2,8 +2,9 @@ package hashelper_test
 
 import (
 	"context"
-	"crypto/md5"
-	"crypto/sha1"
+	"crypto"
+	_ "crypto/md5"
+	_ "crypto/sha1"
 	"fmt"
 	"log"
 	"strings"
@@ -21,26 +22,32 @@ func ExampleSum() {
 	}
 
 	for _, str := range strs {
-
 		ctx := context.Background()
+		hashFuncs := []crypto.Hash{
+			crypto.MD5,
+			crypto.SHA1,
+		}
 
 		r := strings.NewReader(str)
-		h := md5.New()
-		checksum, summed, err := hashelper.Sum(ctx, r, bufferSize, h)
+		checksums, summed, err := hashelper.Sum(ctx, r, bufferSize, nil, hashFuncs...)
 		if err != nil {
 			log.Printf("Sum() error: %v", err)
 			return
 		}
 
-		fmt.Printf("MD5 checksum of \"%v\": %X\n", str, checksum)
-		fmt.Printf("Summed: %v\n", summed)
+		fmt.Printf("Summed: %v bytes for \"%v\"\n", summed, str)
+		for i, checksum := range checksums {
+			fmt.Printf("%v: %X\n", hashFuncs[i].String(), checksum)
+		}
 	}
 
 	// Output:
-	// MD5 checksum of "": D41D8CD98F00B204E9800998ECF8427E
-	// Summed: 0
-	// MD5 checksum of "Hello World!": ED076287532E86365E841E92BFC50D8C
-	// Summed: 12
+	// Summed: 0 bytes for ""
+	// MD5: D41D8CD98F00B204E9800998ECF8427E
+	// SHA-1: DA39A3EE5E6B4B0D3255BFEF95601890AFD80709
+	// Summed: 12 bytes for "Hello World!"
+	// MD5: ED076287532E86365E841E92BFC50D8C
+	// SHA-1: 2EF7BDE608CE5404E97D5F042F95F89F1C232871
 }
 
 func ExampleSumString() {
@@ -50,22 +57,29 @@ func ExampleSumString() {
 		"Hello World!",
 	}
 
-	for _, str := range strs {
+	hashFuncs := []crypto.Hash{
+		crypto.MD5,
+		crypto.SHA1,
+	}
 
-		h := sha1.New()
-		checksum, summed, err := hashelper.SumString(str, h)
+	for _, str := range strs {
+		checksums, summed, err := hashelper.SumString(str, hashFuncs...)
 		if err != nil {
 			log.Printf("Sum() error: %v", err)
 			return
 		}
 
-		fmt.Printf("SHA-1 checksum of \"%v\": %X\n", str, checksum)
-		fmt.Printf("Summed: %v\n", summed)
+		fmt.Printf("Summed: %v bytes for \"%v\"\n", summed, str)
+		for i, checksum := range checksums {
+			fmt.Printf("%v: %X\n", hashFuncs[i].String(), checksum)
+		}
 	}
 
 	// Output:
-	// SHA-1 checksum of "": DA39A3EE5E6B4B0D3255BFEF95601890AFD80709
-	// Summed: 0
-	// SHA-1 checksum of "Hello World!": 2EF7BDE608CE5404E97D5F042F95F89F1C232871
-	// Summed: 12
+	// Summed: 0 bytes for ""
+	// MD5: D41D8CD98F00B204E9800998ECF8427E
+	// SHA-1: DA39A3EE5E6B4B0D3255BFEF95601890AFD80709
+	// Summed: 12 bytes for "Hello World!"
+	// MD5: ED076287532E86365E841E92BFC50D8C
+	// SHA-1: 2EF7BDE608CE5404E97D5F042F95F89F1C232871
 }
