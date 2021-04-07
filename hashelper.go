@@ -2,7 +2,6 @@ package hashelper
 
 import (
 	"context"
-	"crypto"
 	"errors"
 	"hash"
 	"io"
@@ -14,7 +13,7 @@ var (
 	ErrNoHashFuncs = errors.New("no hash functions")
 )
 
-func sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
+func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
 	var (
 		summed    int64
 		writers   []io.Writer
@@ -55,20 +54,7 @@ func sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes
 	}
 }
 
-func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashFuncs ...crypto.Hash) ([][]byte, int64, error) {
-	var hashes []hash.Hash
-
-	for _, h := range hashFuncs {
-		if !h.Available() {
-			return nil, 0, ErrNoHashFuncs
-		}
-		hashes = append(hashes, h.New())
-	}
-
-	return sum(ctx, r, bufferSize, cb, hashes...)
-}
-
-func sumString(s string, hashes ...hash.Hash) ([][]byte, int, error) {
+func SumString(s string, hashes ...hash.Hash) ([][]byte, int, error) {
 	var (
 		writers   []io.Writer
 		checksums [][]byte
@@ -89,17 +75,4 @@ func sumString(s string, hashes ...hash.Hash) ([][]byte, int, error) {
 		checksums = append(checksums, h.Sum(nil))
 	}
 	return checksums, n, nil
-}
-
-func SumString(s string, hashFuncs ...crypto.Hash) ([][]byte, int, error) {
-	var hashes []hash.Hash
-
-	for _, h := range hashFuncs {
-		if !h.Available() {
-			return nil, 0, ErrNoHashFuncs
-		}
-		hashes = append(hashes, h.New())
-	}
-
-	return sumString(s, hashes...)
 }
