@@ -2,16 +2,11 @@ package hashelper
 
 import (
 	"context"
-	"errors"
 	"hash"
 	"io"
 )
 
 type CallBack func(ctx context.Context, summed int64)
-
-var (
-	ErrNoHashFuncs = errors.New("no hash functions")
-)
 
 func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
 	var (
