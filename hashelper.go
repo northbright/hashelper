@@ -20,6 +20,10 @@ func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes
 		checksums [][]byte
 	)
 
+	if bufferSize <= 0 {
+		bufferSize = 32 * 1024
+	}
+
 	buf := make([]byte, bufferSize)
 
 	for _, h := range hashes {
