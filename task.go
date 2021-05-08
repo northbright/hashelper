@@ -80,7 +80,7 @@ func (t *Task) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func (t *Task) NextStep() (bool, error) {
+func (t *Task) Step() (bool, error) {
 	n, err := io.CopyBuffer(t.w, t.r, t.buf)
 	if err != nil {
 		return false, err
