@@ -1,5 +1,5 @@
 # Ignore all
-*
+/*
 # Unignore all sub dirs
 !*/
 !.gitignore
@@ -9,7 +9,7 @@
 !go.mod
 !go.sum
 !*.json
-!.travis.yml
+!*.yml
 !*.pem
 config.json
 # For HTML

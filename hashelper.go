@@ -6,35 +6,72 @@ import (
 	"io"
 )
 
-func Sum(ctx context.Context, r io.Reader, bufferSize int64, h hash.Hash) ([]byte, int64, error) {
-	var summed int64
+type CallBack func(ctx context.Context, summed int64)
+
+func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
+	var (
+		summed    int64
+		writers   []io.Writer
+		checksums [][]byte
+	)
+
+	if bufferSize <= 0 {
+		bufferSize = 32 * 1024
+	}
+
 	buf := make([]byte, bufferSize)
+
+	for _, h := range hashes {
+		writers = append(writers, h)
+	}
+
+	w := io.MultiWriter(writers...)
 
 	for {
 		select {
 		case <-ctx.Done():
-			return h.Sum(nil), summed, ctx.Err()
+			return nil, summed, ctx.Err()
 		default:
-			n, err := io.CopyBuffer(h, r, buf)
+			n, err := io.CopyBuffer(w, r, buf)
 			if err != nil {
 				return nil, 0, err
 			}
 
 			if n == 0 {
-				return h.Sum(nil), summed, nil
+				for _, h := range hashes {
+					checksums = append(checksums, h.Sum(nil))
+				}
+				return checksums, summed, nil
 			}
 
 			summed += n
+
+			if cb != nil {
+				cb(ctx, summed)
+			}
 		}
 	}
 }
 
-func SumString(s string, h hash.Hash) ([]byte, int, error) {
-	n, err := io.WriteString(h, s)
+func SumString(s string, hashes ...hash.Hash) ([][]byte, int, error) {
+	var (
+		writers   []io.Writer
+		checksums [][]byte
+	)
+
+	for _, h := range hashes {
+		writers = append(writers, h)
+	}
+
+	w := io.MultiWriter(writers...)
+
+	n, err := io.WriteString(w, s)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	checksum := h.Sum(nil)
-	return checksum, n, nil
+	for _, h := range hashes {
+		checksums = append(checksums, h.Sum(nil))
+	}
+	return checksums, n, nil
 }
