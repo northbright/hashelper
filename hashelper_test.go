@@ -37,7 +37,7 @@ func ExampleSum() {
 		}
 
 		r := strings.NewReader(str)
-		checksums, summed, err := hashelper.Sum(ctx, r, bufferSize, nil, hashes...)
+		checksums, summed, err := hashelper.SumCtx(ctx, r, bufferSize, nil, hashes...)
 		if err != nil {
 			log.Printf("Sum() error: %v", err)
 			return

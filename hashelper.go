@@ -12,7 +12,13 @@ var (
 
 type CallBack func(ctx context.Context, summed int64)
 
-func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
+func SumCtx(
+	ctx context.Context,
+	r io.Reader,
+	bufferSize int64,
+	cb CallBack,
+	hashes ...hash.Hash,
+) ([][]byte, int64, error) {
 	var (
 		summed    int64
 		writers   []io.Writer
