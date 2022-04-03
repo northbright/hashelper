@@ -6,6 +6,10 @@ import (
 	"io"
 )
 
+var (
+	defBufSize = int64(32 * 1024)
+)
+
 type CallBack func(ctx context.Context, summed int64)
 
 func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes ...hash.Hash) ([][]byte, int64, error) {
@@ -16,7 +20,7 @@ func Sum(ctx context.Context, r io.Reader, bufferSize int64, cb CallBack, hashes
 	)
 
 	if bufferSize <= 0 {
-		bufferSize = 32 * 1024
+		bufferSize = defBufSize
 	}
 
 	buf := make([]byte, bufferSize)
