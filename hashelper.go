@@ -10,14 +10,11 @@ var (
 	defBufSize = int64(32 * 1024)
 )
 
-type CallBack func(ctx context.Context, summed int64)
-
 func SumCtx(
 	ctx context.Context,
 	r io.Reader,
 	bufferSize int64,
-	cb CallBack,
-	hashes ...hash.Hash,
+	hashes []hash.Hash,
 ) ([][]byte, int64, error) {
 	var (
 		summed    int64
@@ -55,15 +52,11 @@ func SumCtx(
 			}
 
 			summed += n
-
-			if cb != nil {
-				cb(ctx, summed)
-			}
 		}
 	}
 }
 
-func SumString(s string, hashes ...hash.Hash) ([][]byte, int, error) {
+func SumString(s string, hashes []hash.Hash) ([][]byte, int, error) {
 	var (
 		writers   []io.Writer
 		checksums [][]byte
