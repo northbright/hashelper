@@ -51,12 +51,10 @@ func SumCtx(
 	r io.Reader,
 	bufferSize int64,
 	hashFuncNames []string,
-) ([][]byte, int64, error) {
+) (checksums [][]byte, summed int64, err error) {
 	var (
-		summed    int64
-		hashes    []hash.Hash
-		writers   []io.Writer
-		checksums [][]byte
+		hashes  []hash.Hash
+		writers []io.Writer
 	)
 
 	if bufferSize <= 0 {
@@ -102,11 +100,10 @@ func SumCtx(
 	}
 }
 
-func SumString(s string, hashFuncNames []string) ([][]byte, int, error) {
+func SumString(s string, hashFuncNames []string) (checksums [][]byte, summed int, err error) {
 	var (
-		hashes    []hash.Hash
-		writers   []io.Writer
-		checksums [][]byte
+		hashes  []hash.Hash
+		writers []io.Writer
 	)
 
 	// Get hash.Hash from hash func name.
@@ -124,7 +121,7 @@ func SumString(s string, hashFuncNames []string) ([][]byte, int, error) {
 
 	w := io.MultiWriter(writers...)
 
-	n, err := io.WriteString(w, s)
+	summed, err = io.WriteString(w, s)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -132,5 +129,5 @@ func SumString(s string, hashFuncNames []string) ([][]byte, int, error) {
 	for _, h := range hashes {
 		checksums = append(checksums, h.Sum(nil))
 	}
-	return checksums, n, nil
+	return checksums, summed, nil
 }
