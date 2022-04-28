@@ -49,8 +49,8 @@ func GetHashByName(name string) (hash.Hash, error) {
 func SumCtx(
 	ctx context.Context,
 	r io.Reader,
-	bufferSize int64,
 	hashFuncNames []string,
+	bufferSize int64,
 ) (checksums [][]byte, summed int64, err error) {
 	var (
 		hashes  []hash.Hash

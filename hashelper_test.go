@@ -31,8 +31,8 @@ func ExampleSum() {
 		checksums, summed, err := hashelper.SumCtx(
 			ctx,
 			r,
-			bufferSize,
 			hashFuncNames,
+			bufferSize,
 		)
 		if err != nil {
 			log.Printf("Sum() error: %v", err)
