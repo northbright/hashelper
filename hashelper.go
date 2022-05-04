@@ -12,9 +12,12 @@ import (
 	"io"
 )
 
+const (
+	DefBufSize = int64(32 * 1024)
+	MaxBufSize = int64(4 * 1024 * 1024 * 1024)
+)
+
 var (
-	defBufSize             = int64(32 * 1024)
-	maxBufSize             = int64(4 * 1024 * 1024 * 1024)
 	ErrUnSupportedHashFunc = errors.New("unsupported hash function")
 	SupportedHashFuncs     = []string{
 		"MD5",
@@ -47,8 +50,15 @@ func GetHashByName(name string) (hash.Hash, error) {
 	}
 }
 
-func validBufferSize(bufferSize int64) bool {
-	return (bufferSize > 0 && bufferSize <= maxBufSize)
+func updateBufferSize(bufferSize int64) int64 {
+	switch {
+	case bufferSize <= 0:
+		return DefBufSize
+	case bufferSize > MaxBufSize:
+		return MaxBufSize
+	default:
+		return bufferSize
+	}
 }
 
 func SumCtx(
@@ -62,10 +72,7 @@ func SumCtx(
 		writers []io.Writer
 	)
 
-	if !validBufferSize(bufferSize) {
-		bufferSize = defBufSize
-	}
-
+	bufferSize = updateBufferSize(bufferSize)
 	buf := make([]byte, bufferSize)
 
 	// Get hash.Hash from hash func name.
