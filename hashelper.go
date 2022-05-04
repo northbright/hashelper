@@ -28,7 +28,7 @@ var (
 	}
 )
 
-func GetSupportedHashFuncNames() []string {
+func GetSupportedHashFuncs() []string {
 	return SupportedHashFuncs
 }
 
